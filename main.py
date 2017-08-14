@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, render_template, Response, request
 from flask_mysqldb import MySQL
 import json
 import os.path
@@ -24,6 +24,33 @@ app.config["MYSQL_PASSWORD"] = "password"
 app.config["MYSQL_DB"] = "fuji"
 app.config["MYSQL_HOST"] = "localhost"
 sql.init_app(app)
+
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
+
+@app.route("/data")
+def data():
+    pages = {}
+    
+    cursor = sql.connection.cursor()
+    cursor.execute("SELECT * FROM events WHERE name = 'Content View'")
+    result = cursor.fetchall()
+    
+    for row in result:
+        page = json.loads(row[2])["page"]
+        
+        if page in pages:
+            pages[page] += 1
+        else:
+            pages[page] = 1
+    
+    contents = "page,count\n"
+    
+    for page in pages:
+        contents += "%s,%d\n" % (page, pages[page])
+    
+    return Response(contents, mimetype="text/csv")
 
 @app.route("/events", methods = ["POST"])
 def events():
