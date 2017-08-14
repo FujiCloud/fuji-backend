@@ -1,6 +1,8 @@
 from flask import Flask, jsonify, request
 from flask_mysqldb import MySQL
 import json
+import os.path
+import uuid
 
 class Event:
     name = ""
@@ -13,6 +15,7 @@ class Event:
     def attributes_json(self):
         return json.dumps(self.attributes, separators=(",", ":"))
 
+api_key = ""
 app = Flask(__name__)
 sql = MySQL()
 
@@ -24,6 +27,9 @@ sql.init_app(app)
 
 @app.route("/events", methods = ["POST"])
 def events():
+    if request.headers.get("Authorization") != api_key:
+        return jsonify({"message": "Unauthorized"}), 401
+    
     event = Event(request.json)
     query = "INSERT INTO events (name, attributes) VALUES (%s, %s)"
     
@@ -34,4 +40,15 @@ def events():
     return jsonify({"message": "Hello"})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    if os.path.isfile("config.json"):
+        with open("config.json", "r") as f:
+            data = json.load(f)
+            api_key = data["API_KEY"]
+    else:
+        with open("config.json", "w") as f:
+            api_key = str(uuid.uuid4()).replace("-", "")
+            data = {"API_KEY": api_key}
+            json.dump(data, f)
+    
+    print("API key: %s" % api_key)
+    app.run()
