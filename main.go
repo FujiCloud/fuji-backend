@@ -5,13 +5,21 @@ import (
     "database/sql"
     "encoding/json"
     "fmt"
+    "io/ioutil"
     "net/http"
     "strconv"
+    "strings"
     
     _ "github.com/go-sql-driver/mysql"
+    "github.com/nu7hatch/gouuid"
 )
 
+var api_key string
 var db *sql.DB
+
+type ConfigFile struct {
+    Apikey string `json:"api_key"`
+}
 
 type Event struct {
     Name string
@@ -62,8 +70,8 @@ func dataHandler(w http.ResponseWriter, r *http.Request) {
 func eventsHandler(w http.ResponseWriter, r *http.Request) {
     switch r.Method {
     case "POST":
-        if api_key, ok := r.Header["Authorization"]; ok {
-            if api_key[0] != "hello" {
+        if key, ok := r.Header["Authorization"]; ok {
+            if key[0] != api_key {
                 w.WriteHeader(403)
                 return
             }
@@ -91,6 +99,23 @@ func eventsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+    raw, err := ioutil.ReadFile("config.json")
+    
+    if err == nil {
+        var config ConfigFile
+        json.Unmarshal(raw, &config)
+        api_key = config.Apikey
+    } else {
+        uuid, _ := uuid.NewV4()
+        api_key = strings.Replace(uuid.String(), "-", "", 4)
+        
+        config := ConfigFile{api_key}
+        configJson, _ := json.Marshal(config)
+        ioutil.WriteFile("config.json", configJson, 0644)
+    }
+    
+    fmt.Printf("API Key: %s\n", api_key)
+    
     db, _ = sql.Open("mysql", "root:password@tcp(127.0.0.1:3306)/fuji")
     
     http.HandleFunc("/dashboard", dashboardHandler)
