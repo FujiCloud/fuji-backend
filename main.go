@@ -118,6 +118,7 @@ func main() {
     
     db, _ = sql.Open("mysql", "root:password@tcp(127.0.0.1:3306)/fuji")
     
+    http.Handle("/", http.FileServer(http.Dir("./frontend")))
     http.HandleFunc("/dashboard", dashboardHandler)
     http.HandleFunc("/data", dataHandler)
     http.HandleFunc("/events", eventsHandler)
