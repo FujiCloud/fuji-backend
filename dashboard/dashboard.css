@@ -45,6 +45,7 @@ body {
     stroke: #fff;
 }
 
-.axis text {
+.axis text, .label {
+    font-family: 'Nunito', Helvetica, Arial, sans-serif;
     fill: #fff;
 }

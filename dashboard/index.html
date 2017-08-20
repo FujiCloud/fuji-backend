@@ -6,25 +6,18 @@
     <link href="https://fonts.googleapis.com/css?family=Nunito:400,600" rel="stylesheet" />
     <link href="dashboard.css" rel="stylesheet" />
     <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://raw.githubusercontent.com/Caged/d3-tip/master/index.js"></script>
 </head>
 <body>
     <div id="container">
-        <h1>Welcome back</h1>
+        <h1>Welcome back!</h1>
         <div class="metric left">
             <h2>Content Views</h2>
-            <svg width="432" height="250"></svg>
+            <svg id="content-views" width="432" height="250"></svg>
         </div>
         <div class="metric right">
-            <h2>Content Views</h2>
-            <svg width="432" height="250"></svg>
-        </div>
-        <div class="metric left bottom">
-            <h2>Content Views</h2>
-            <svg width="432" height="250"></svg>
-        </div>
-        <div class="metric right bottom">
-            <h2>Content Views</h2>
-            <svg width="432" height="250"></svg>
+            <h2>Monthly Active Users</h2>
+            <svg id="mau" width="432" height="250"></svg>
         </div>
     </div>
     <script src="dashboard.js"></script>
