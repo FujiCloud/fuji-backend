@@ -110,7 +110,7 @@ func DataHandler(w http.ResponseWriter, r *http.Request) {
         
         fmt.Fprintf(w, buffer.String())
     case "maus":
-        rows, _ := Db.Query("SELECT DATE(created_at) date, COUNT(DISTINCT id) count FROM events GROUP BY DATE(created_at) ORDER BY date ASC")
+        rows, _ := Db.Query("SELECT DATE(created_at) date, COUNT(DISTINCT user_id) count FROM sessions GROUP BY DATE(created_at) ORDER BY date ASC")
         defer rows.Close()
         
         dates := make([]string, 0)

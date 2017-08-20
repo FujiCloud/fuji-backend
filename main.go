@@ -46,6 +46,7 @@ func main() {
     
     http.HandleFunc("/data", endpoints.DataHandler)
     http.HandleFunc("/events", endpoints.EventsHandler)
+    http.HandleFunc("/sessions", endpoints.SessionsHandler)
     http.HandleFunc("/users", endpoints.UsersHandler)
     
     fmt.Printf("Running on localhost:8000...\n")

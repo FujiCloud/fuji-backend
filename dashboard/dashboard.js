@@ -87,6 +87,14 @@ function generateMAUs() {
         return d;
     }, function(error, data) {
         if (error) throw error;
+        
+        var total = 0;
+        
+        for (var i = 0; i < data.length; i++) {
+            var original_total = total;
+            total += data[i].count;
+            data[i].count += original_total;
+        }
 
         x.domain(d3.extent(data, function(d) { return d.date; }));
         y.domain([0, d3.max(data, function(d) { return d.count; })]);

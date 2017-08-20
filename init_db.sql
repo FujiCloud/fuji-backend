@@ -8,6 +8,13 @@ CREATE TABLE events(
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE sessions(
+    id int not null auto_increment primary key,
+    user_id int not null,
+    duration int,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE users(
     id int not null auto_increment primary key,
     os tinytext,
