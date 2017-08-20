@@ -18,7 +18,12 @@ function generateContentViews() {
     var g = svg.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    d3.csv("../data?q=content_view", type, function(error, data) {
+    d3.csv("../data?q=content_view", function(d, i, columns) {
+        var parseDate = d3.timeParse("%Y %b %d");
+        d.date = parseDate(d.date);
+        for (var i = 1, n = columns.length; i < n; ++i) d[columns[i]] = d[columns[i]] / 100;
+        return d;
+    }, function(error, data) {
         if (error) throw error;
 
         var keys = data.columns.slice(1);
@@ -58,21 +63,12 @@ function generateContentViews() {
     });
 }
 
-function type(d, i, columns) {
-    var parseDate = d3.timeParse("%Y %b %d");
-    d.date = parseDate(d.date);
-    for (var i = 1, n = columns.length; i < n; ++i) d[columns[i]] = d[columns[i]] / 100;
-    return d;
-}
-
 function generateMAUs() {
     var svg = d3.select("#mau"),
         margin = {top: 20, right: 20, bottom: 30, left: 38},
         width = svg.attr("width") - margin.left - margin.right,
         height = svg.attr("height") - margin.top - margin.bottom,
         g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    var parseTime = d3.timeParse("%Y %b %d");
 
     var x = d3.scaleTime()
         .rangeRound([0, width]);
@@ -85,6 +81,7 @@ function generateMAUs() {
         .y1(function(d) { return y(d.count); });
 
     d3.csv("../data?q=maus", function(d) {
+        var parseTime = d3.timeParse("%Y %b %d");
         d.date = parseTime(d.date);
         d.count = +d.count;
         return d;
