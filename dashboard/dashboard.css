@@ -10,7 +10,7 @@ body {
 }
 
 #container {
-    margin: 64px auto 0;
+    margin: 32px auto;
     max-width: 960px;
 }
 
@@ -35,6 +35,10 @@ body {
 
 .right {
     float: right;
+}
+
+.bottom {
+    margin-bottom: 0;
 }
 
 .axis line, .axis path {
