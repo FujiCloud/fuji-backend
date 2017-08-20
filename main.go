@@ -39,11 +39,11 @@ func main() {
     Db, _ = sql.Open("mysql", "root:password@tcp(127.0.0.1:3306)/fuji?parseTime=true")
     
     http.Handle("/", http.FileServer(http.Dir("./frontend")))
+    http.Handle("/dashboard/", http.StripPrefix("/dashboard/", http.FileServer(http.Dir("./dashboard"))))
     
     endpoints.Api_key = Api_key
     endpoints.Db = Db
     
-    http.HandleFunc("/dashboard", endpoints.DashboardHandler)
     http.HandleFunc("/data", endpoints.DataHandler)
     http.HandleFunc("/events", endpoints.EventsHandler)
     

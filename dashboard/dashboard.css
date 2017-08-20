@@ -1,0 +1,46 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: #212a5e;
+    color: #fff;
+    font-family: 'Nunito', Helvetica, Arial, sans-serif;
+}
+
+#container {
+    margin: 64px auto 0;
+    max-width: 960px;
+}
+
+#container h1 {
+    font-size: 36px;
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.metric {
+    background: #283371;
+    border: #354497 1px solid;
+    border-radius: 4px;
+    display: inline-block;
+    padding: 16px;
+    margin-bottom: 32px;
+}
+
+.metric h2 {
+    text-align: center;
+}
+
+.right {
+    float: right;
+}
+
+.axis line, .axis path {
+    stroke: #fff;
+}
+
+.axis text {
+    fill: #fff;
+}
