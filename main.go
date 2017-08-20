@@ -9,6 +9,7 @@ import (
     "net/http"
     "strconv"
     "strings"
+    "time"
     
     _ "github.com/go-sql-driver/mysql"
     "github.com/nu7hatch/gouuid"
@@ -31,36 +32,97 @@ func dashboardHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func dataHandler(w http.ResponseWriter, r *http.Request) {
-    rows, _ := db.Query("SELECT * FROM events WHERE name = 'Content View'")
+    rows, _ := db.Query("SELECT * FROM events WHERE name = 'Content View' ORDER BY created_at ASC")
     defer rows.Close()
     
-    pages := make(map[string]int)
+    dates := make([]string, 0)
+    events := make(map[string]map[string]int)
+    event_names := make([]string, 0)
     
     for rows.Next() {
         var id int
         var name string
         var attributes string
-        rows.Scan(&id, &name, &attributes)
+        var created_at time.Time
+        rows.Scan(&id, &name, &attributes, &created_at)
         
         eventJson := fmt.Sprintf("{\"name\": \"%s\", \"attributes\": %s}", name, attributes)
         var event Event
         json.Unmarshal([]byte(eventJson), &event)
         page := event.Attributes["page"]
         
-        if _, ok := pages[page]; ok {
-            pages[page] += 1
+        time_string := created_at.Format("2006 Jan 02")
+        
+        if _, ok := events[time_string]; ok {
+            if _, pageOk := events[time_string][page]; pageOk {
+                events[time_string][page] += 1
+            } else {
+                events[time_string][page] = 1
+            }
         } else {
-            pages[page] = 1
+            events[time_string] = make(map[string]int)
+            events[time_string][page] = 1
+        }
+        
+        if _, ok := events[time_string]["_total"]; ok {
+            events[time_string]["_total"] += 1
+        } else {
+            events[time_string]["_total"] = 1
+        }
+        
+        names_contains := false
+        
+        for _, value := range event_names {
+            if value == page {
+                names_contains = true
+                break
+            }
+        }
+        
+        if !names_contains {
+            event_names = append(event_names, page)
+        }
+        
+        dates_contains := false
+        
+        for _, value := range dates {
+            if value == time_string {
+                dates_contains = true
+                break
+            }
+        }
+        
+        if !dates_contains {
+            dates = append(dates, time_string)
         }
     }
     
     var buffer bytes.Buffer
-    buffer.WriteString("page,count\n")
+    buffer.WriteString("date")
     
-    for k, v := range pages {
-        buffer.WriteString(k)
+    for _, value := range event_names {
         buffer.WriteString(",")
-        buffer.WriteString(strconv.Itoa(v))
+        buffer.WriteString(value)
+    }
+    
+    buffer.WriteString("\n")
+    
+    for _, date := range dates {
+        buffer.WriteString(date)
+        
+        for i := range event_names {
+            page := event_names[i]
+            
+            if page != "_total" {
+                if _, ok := events[date][page]; ok {
+                    buffer.WriteString(",")
+                    buffer.WriteString(strconv.FormatFloat(100 * float64(events[date][page]) / float64(events[date]["_total"]), 'f', 2, 64))
+                } else {
+                    buffer.WriteString(",0")
+                }
+            }
+        }
+        
         buffer.WriteString("\n")
     }
     
@@ -116,7 +178,7 @@ func main() {
     
     fmt.Printf("API Key: %s\n", api_key)
     
-    db, _ = sql.Open("mysql", "root:password@tcp(127.0.0.1:3306)/fuji")
+    db, _ = sql.Open("mysql", "root:password@tcp(127.0.0.1:3306)/fuji?parseTime=true")
     
     http.Handle("/", http.FileServer(http.Dir("./frontend")))
     http.HandleFunc("/dashboard", dashboardHandler)
