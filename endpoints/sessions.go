@@ -39,6 +39,33 @@ func SessionsHandler(w http.ResponseWriter, r *http.Request) {
         
         resultJson, _ := json.Marshal(resultSession)
         fmt.Fprintf(w, string(resultJson))
+    case "PATCH":
+        if key, ok := r.Header["Authorization"]; ok {
+            if key[0] != Api_key {
+                w.WriteHeader(403)
+                return
+            }
+        } else {
+            w.WriteHeader(403)
+            return
+        }
+        
+        decoder := json.NewDecoder(r.Body)
+        var session models.Session
+        decoder.Decode(&session)
+        defer r.Body.Close()
+        
+        stmtUpdate, _ := Db.Prepare("UPDATE sessions SET duration = ? WHERE id = ?")
+        defer stmtUpdate.Close()
+        
+        stmtUpdate.Exec(session.Duration, session.Id)
+        result := Db.QueryRow("SELECT * FROM sessions WHERE id = ? LIMIT 1", session.Id)
+        
+        var resultSession models.Session
+        result.Scan(&resultSession.Id, &resultSession.User_id, &resultSession.Duration, &resultSession.Created_at)
+        
+        resultJson, _ := json.Marshal(resultSession)
+        fmt.Fprintf(w, string(resultJson))
     default:
         w.WriteHeader(404)
     }
