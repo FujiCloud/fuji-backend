@@ -26,12 +26,19 @@ func SessionsHandler(w http.ResponseWriter, r *http.Request) {
         decoder.Decode(&session)
         defer r.Body.Close()
         
-        stmtIns, _ := Db.Prepare("INSERT INTO SESSIONS (user_id) VALUES (?)")
+        stmtIns, _ := Db.Prepare("INSERT INTO sessions (user_id) VALUES (?)")
         defer stmtIns.Close()
         
-        stmtIns.Exec(session.User_id)
+        insertResult, _ := stmtIns.Exec(session.User_id)
         
-        fmt.Fprintf(w, "Yay!")
+        id, _ := insertResult.LastInsertId()
+        result := Db.QueryRow("SELECT * FROM sessions WHERE id = ? LIMIT 1", id)
+        
+        var resultSession models.Session
+        result.Scan(&resultSession.Id, &resultSession.User_id, &resultSession.Duration, &resultSession.Created_at)
+        
+        resultJson, _ := json.Marshal(resultSession)
+        fmt.Fprintf(w, string(resultJson))
     default:
         w.WriteHeader(404)
     }
