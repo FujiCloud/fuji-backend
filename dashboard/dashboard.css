@@ -49,3 +49,19 @@ body {
     font-family: 'Nunito', Helvetica, Arial, sans-serif;
     fill: #fff;
 }
+
+.area.outer {
+    stroke: #3e43c1;
+    fill: #6b6ecf;
+}
+
+.area.inner {
+    stroke: #444588;
+    fill: #5254a3;
+}
+
+.median-line {
+    fill: none;
+    stroke: #393b79;
+    stroke-width: 2;
+}
