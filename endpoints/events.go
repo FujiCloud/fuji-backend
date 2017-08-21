@@ -31,9 +31,18 @@ func EventsHandler(w http.ResponseWriter, r *http.Request) {
         stmtIns, _ := Db.Prepare("INSERT INTO events (name, attributes) VALUES (?, ?)")
         defer stmtIns.Close()
         
-        stmtIns.Exec(event.Name, attributesString)
+        insertResult, _ := stmtIns.Exec(event.Name, attributesString)
         
-        fmt.Fprintf(w, "Yay!")
+        id, _ := insertResult.LastInsertId()
+        result := Db.QueryRow("SELECT * FROM events WHERE id = ? LIMIT 1", id)
+        
+        var resultAttributes string
+        var resultEvent models.Event
+        result.Scan(&resultEvent.Id, &resultEvent.Name, &resultAttributes, &resultEvent.Created_at)
+        resultEvent.Attributes = event.Attributes
+        
+        resultJson, _ := json.Marshal(resultEvent)
+        fmt.Fprintf(w, string(resultJson))
     default:
         w.WriteHeader(404)
     }

@@ -22,18 +22,14 @@ func DataHandler(w http.ResponseWriter, r *http.Request) {
         event_names := make([]string, 0)
         
         for rows.Next() {
-            var id int
-            var name string
             var attributes string
-            var created_at time.Time
-            rows.Scan(&id, &name, &attributes, &created_at)
-            
-            eventJson := fmt.Sprintf("{\"name\": \"%s\", \"attributes\": %s}", name, attributes)
             var event models.Event
-            json.Unmarshal([]byte(eventJson), &event)
+            rows.Scan(&event.Id, &event.Name, &attributes, &event.Created_at)
+            
+            json.Unmarshal([]byte(attributes), &event.Attributes)
             page := event.Attributes["page"]
             
-            time_string := created_at.Format("2006 Jan 02")
+            time_string := event.Created_at.Format("2006 Jan 02")
             
             if _, ok := events[time_string]; ok {
                 if _, pageOk := events[time_string][page]; pageOk {
