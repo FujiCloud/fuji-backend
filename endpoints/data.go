@@ -8,6 +8,8 @@ import (
     "strconv"
     "time"
     
+    "github.com/montanaflynn/stats"
+    
     "../models"
 )
 
@@ -103,6 +105,85 @@ func DataHandler(w http.ResponseWriter, r *http.Request) {
             
             buffer.WriteString("\n")
         }
+        
+        fmt.Fprintf(w, buffer.String())
+    case "duration":
+        rows, _ := Db.Query("SELECT duration, created_at FROM sessions WHERE duration IS NOT NULL ORDER BY created_at ASC")
+        defer rows.Close()
+        
+        var buffer bytes.Buffer
+        buffer.WriteString("date,pct05,pct25,pct50,pct75,pct95\n")
+        
+        save := func(date string, values []float64) {
+            buffer.WriteString(date)
+            buffer.WriteString(",")
+            
+            fifth_percentile, err := stats.Percentile(values, 5)
+            if err == nil {
+                buffer.WriteString(strconv.FormatFloat(fifth_percentile, 'f', 2, 64))
+            } else {
+                buffer.WriteString("0")
+            }
+            buffer.WriteString(",")
+            
+            twentyfifth_percentile, err := stats.Percentile(values, 25)
+            if err == nil {
+                buffer.WriteString(strconv.FormatFloat(twentyfifth_percentile, 'f', 2, 64))
+            } else {
+                buffer.WriteString("0")
+            }
+            buffer.WriteString(",")
+            
+            median, err := stats.Percentile(values, 50)
+            if err == nil {
+                buffer.WriteString(strconv.FormatFloat(median, 'f', 2, 64))
+            } else {
+                buffer.WriteString("0")
+            }
+            buffer.WriteString(",")
+            
+            seventyfifth_percentile, err := stats.Percentile(values, 75)
+            if err == nil {
+                buffer.WriteString(strconv.FormatFloat(seventyfifth_percentile, 'f', 2, 64))
+            } else {
+                buffer.WriteString("0")
+            }
+            buffer.WriteString(",")
+            
+            ninetyfifth_percentile, err := stats.Percentile(values, 95)
+            if err == nil {
+                buffer.WriteString(strconv.FormatFloat(ninetyfifth_percentile, 'f', 2, 64))
+            } else {
+                buffer.WriteString("0")
+            }
+            buffer.WriteString("\n")
+        }
+        
+        current_date := ""
+        values := make([]float64, 0)
+        
+        for rows.Next() {
+            var duration int
+            var date time.Time
+            rows.Scan(&duration, &date)
+            
+            date_string := date.Format("2006 Jan 02")
+            
+            if current_date == "" {
+                current_date = date_string
+            }
+            
+            if date_string != current_date {
+                save(current_date, values)
+                
+                values = make([]float64, 0)
+                current_date = date_string
+            }
+            
+            values = append(values, float64(duration))
+        }
+        
+        save(current_date, values)
         
         fmt.Fprintf(w, buffer.String())
     case "maus":

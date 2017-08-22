@@ -129,20 +129,15 @@ function generateSessionDuration() {
     var y = d3.scaleLinear()
         .range([height, 0]);
     
-    d3.csv("data.csv", function(d) {
-        var parseDate = d3.timeParse("%Y-%m-%d");
-        d.date = parseDate(d.date);
-        d.pct05 = d.pct05 / 1000;
-        d.pct25 = d.pct25 / 1000;
-        d.pct50 = d.pct50 / 1000;
-        d.pct75 = d.pct75 / 1000;
-        d.pct95 = d.pct95 / 1000;
+    d3.csv("../data?q=duration", function(d) {
+        var parseTime = d3.timeParse("%Y %b %d");
+        d.date = parseTime(d.date);
         return d;
     }, function (error, data) {
         if (error) throw error;
         
         x.domain(d3.extent(data, function (d) { return d.date; }));
-        y.domain([0, d3.max(data, function (d) { return d.pct95; })]);
+        y.domain([0, d3.max(data, function (d) { return parseFloat(d.pct95); })]);
         
         var upperOuterArea = d3.area()
             .x (function (d) { return x(d.date); })
