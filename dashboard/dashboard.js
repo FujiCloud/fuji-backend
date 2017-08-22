@@ -192,7 +192,17 @@ function generateSessionDuration() {
         
         g.append("g")
             .attr("class", "axis axis--y")
-            .call(d3.axisLeft(y).ticks(5));
+            .call(d3.axisLeft(y).ticks(5).tickFormat(function(d) {
+                var seconds = d;
+                var minutes = 0;
+                
+                while (seconds >= 60) {
+                    minutes += 1;
+                    seconds -= 60;
+                }
+                
+                return ("0" + minutes).slice(-2) + ":" + ("0" + seconds).slice(-2)
+            }));
     });
 }
 
