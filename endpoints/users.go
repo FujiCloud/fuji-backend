@@ -29,9 +29,16 @@ func UsersHandler(w http.ResponseWriter, r *http.Request) {
         stmtIns, _ := Db.Prepare("INSERT INTO users (os, device, locale, voiceover, bold_text, reduce_motion, reduce_transparency) VALUES (?, ?, ?, ?, ?, ?, ?)")
         defer stmtIns.Close()
         
-        stmtIns.Exec(user.Os, user.Device, user.Locale, user.Voiceover, user.Bold_text, user.Reduce_motion, user.Reduce_transparency)
+        insertResult, _ := stmtIns.Exec(user.Os, user.Device, user.Locale, user.Voiceover, user.Bold_text, user.Reduce_motion, user.Reduce_transparency)
         
-        fmt.Fprintf(w, "Yay!")
+        id, _ := insertResult.LastInsertId()
+        result := Db.QueryRow("SELECT * FROM users WHERE id = ? LIMIT 1", id)
+        
+        var resultUser models.User
+        result.Scan(&resultUser.Id, &resultUser.Os, &resultUser.Device, &resultUser.Locale, &resultUser.Voiceover, &resultUser.Bold_text, &resultUser.Reduce_motion, &resultUser.Reduce_transparency, &resultUser.Created_at)
+        
+        resultJson, _ := json.Marshal(resultUser)
+        fmt.Fprintf(w, string(resultJson))
     default:
         w.WriteHeader(404)
     }

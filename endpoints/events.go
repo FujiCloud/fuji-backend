@@ -31,7 +31,10 @@ func EventsHandler(w http.ResponseWriter, r *http.Request) {
         stmtIns, _ := Db.Prepare("INSERT INTO events (name, attributes) VALUES (?, ?)")
         defer stmtIns.Close()
         
-        insertResult, _ := stmtIns.Exec(event.Name, attributesString)
+        insertResult, err := stmtIns.Exec(event.Name, attributesString)
+        if err != nil {
+            fmt.Println(err)
+        }
         
         id, _ := insertResult.LastInsertId()
         result := Db.QueryRow("SELECT * FROM events WHERE id = ? LIMIT 1", id)

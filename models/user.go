@@ -3,13 +3,13 @@ package models
 import "time"
 
 type User struct {
-    Id int
-    Os string
-    Device string
-    Locale string
-    Voiceover bool
-    Bold_text bool
-    Reduce_motion bool
-    Reduce_transparency bool
-    Created_at time.Time
+    Id int `json:"id"`
+    Os string `json:"os"`
+    Device string `json:"device"`
+    Locale string `json:"locale"`
+    Voiceover bool `json:"voiceover"`
+    Bold_text bool `json:"bold_text"`
+    Reduce_motion bool `json:"reduce_motion"`
+    Reduce_transparency bool `json:"reduce_transparency"`
+    Created_at time.Time `json:"created_at"`
 }
