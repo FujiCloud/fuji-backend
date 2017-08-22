@@ -105,6 +105,7 @@ function generateMAUs(monthly) {
         g.append("path")
             .datum(data)
             .attr("fill", "#5254a3")
+            .attr("stroke", "#6b6ecf")
             .attr("d", area);
 
         g.append("g")

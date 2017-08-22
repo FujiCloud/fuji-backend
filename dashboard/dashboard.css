@@ -51,17 +51,16 @@ body {
 }
 
 .area.outer {
-    stroke: #1c244a;
-    fill: #232d5c;
+    stroke: #6b6ecf;
+    fill: #5254a3;
 }
 
 .area.inner {
-    stroke: #232d5c;
-    fill: #2a366f;
+    fill: #6b6ecf;
 }
 
 .median-line {
     fill: none;
-    stroke: #384794;
+    stroke: #999acc;
     stroke-width: 2;
 }
