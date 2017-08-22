@@ -63,8 +63,8 @@ function generateContentViews() {
     });
 }
 
-function generateMAUs() {
-    var svg = d3.select("#mau"),
+function generateMAUs(monthly) {
+    var svg = d3.select(monthly ? "#mau" : "#dau"),
         margin = {top: 20, right: 20, bottom: 30, left: 38},
         width = svg.attr("width") - margin.left - margin.right,
         height = svg.attr("height") - margin.top - margin.bottom,
@@ -88,12 +88,14 @@ function generateMAUs() {
     }, function(error, data) {
         if (error) throw error;
         
-        var total = 0;
-        
-        for (var i = 0; i < data.length; i++) {
-            var original_total = total;
-            total += data[i].count;
-            data[i].count += original_total;
+        if (monthly) {
+            var total = 0;
+            
+            for (var i = 0; i < data.length; i++) {
+                var original_total = total;
+                total += data[i].count;
+                data[i].count += original_total;
+            }
         }
 
         x.domain(d3.extent(data, function(d) { return d.date; }));
@@ -207,5 +209,6 @@ function generateSessionDuration() {
 }
 
 generateContentViews();
-generateMAUs();
+generateMAUs(true);
 generateSessionDuration();
+generateMAUs(false);
