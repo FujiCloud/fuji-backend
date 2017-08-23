@@ -15,6 +15,30 @@ import (
 
 func DataHandler(w http.ResponseWriter, r *http.Request) {
     switch query := r.URL.Query().Get("q"); query {
+    case "accessibility":
+        counts := Db.QueryRow("SELECT SUM(voiceover = 1), SUM(bold_text = 1), SUM(reduce_motion = 1), SUM(reduce_transparency = 1), COUNT(*) FROM USERS")
+        
+        var voiceover int
+        var bold_text int
+        var reduce_motion int
+        var reduce_transparency int
+        var total int
+        counts.Scan(&voiceover, &bold_text, &reduce_motion, &reduce_transparency, &total)
+        
+        var buffer bytes.Buffer
+        buffer.WriteString("setting,count\n")
+        buffer.WriteString("voiceover,")
+        buffer.WriteString(strconv.Itoa(voiceover))
+        buffer.WriteString("\nbold_text,")
+        buffer.WriteString(strconv.Itoa(bold_text))
+        buffer.WriteString("\nreduce_motion,")
+        buffer.WriteString(strconv.Itoa(reduce_motion))
+        buffer.WriteString("\nreduce_transparency,")
+        buffer.WriteString(strconv.Itoa(reduce_transparency))
+        buffer.WriteString("\ntotal,")
+        buffer.WriteString(strconv.Itoa(total))
+        
+        fmt.Fprintf(w, buffer.String())
     case "content_view":
         rows, _ := Db.Query("SELECT * FROM events WHERE name = 'Content View' ORDER BY created_at ASC")
         defer rows.Close()
