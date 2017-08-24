@@ -64,3 +64,14 @@ body {
     stroke: #999acc;
     stroke-width: 2;
 }
+
+.arc text {
+    fill: #ffffff;
+    font-family: 'Nunito', Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    text-anchor: middle;
+}
+
+.arc path {
+    stroke: #fff;
+}

@@ -209,7 +209,60 @@ function generateSessionDuration() {
     });
 }
 
+function generateAccessibility() {
+    var svg = d3.select("#reduce-transparency"),
+        width = svg.attr("width"),
+        height = svg.attr("height"),
+        radius = Math.min(width, height) / 2,
+        g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + (height / 2 + 8) + ")");
+
+    var color = d3.scaleOrdinal()
+        .range(["#393b79", "#5254a3" , "#6b6ecf"]);
+
+    var arc = d3.arc()
+        .outerRadius(radius - 10)
+        .innerRadius(radius - 70);
+
+    var pie = d3.pie()
+        .sort(null)
+        .value(function(d) { return d.count; });
+    
+    var statistic = 0;
+    
+    d3.csv("../data?q=accessibility", function(d) {
+        if (d.setting == "reduce_transparency") {
+            d.setting = "Enabled";
+            statistic = d.count;
+        } else if (d.setting == "total") {
+            d.setting = "Disabled";
+            d.count -= statistic;
+        } else {
+            d.setting = "";
+            d.count = 0;
+        }
+        
+        return d;
+    }, function(error, data) {
+        if (error) throw error;
+        
+        var arcG = g.selectAll(".arc")
+            .data(pie(data))
+            .enter().append("g")
+            .attr("class", "arc");
+        
+        arcG.append("path")
+            .attr("d", arc)
+            .style("fill", function(d) { return color(d.data.setting); });
+        
+        arcG.append("text")
+            .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+            .attr("dy", ".35em")
+            .text(function(d) { return d.data.setting; });
+    });
+}
+
 generateContentViews();
 generateMAUs(true);
 generateSessionDuration();
 generateMAUs(false);
+generateAccessibility();
