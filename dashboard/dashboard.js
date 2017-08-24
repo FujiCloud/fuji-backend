@@ -209,8 +209,8 @@ function generateSessionDuration() {
     });
 }
 
-function generateAccessibility() {
-    var svg = d3.select("#reduce-transparency"),
+function generateAccessibility(setting) {
+    var svg = d3.select("#" + setting.replace(" ", "-")),
         width = svg.attr("width"),
         height = svg.attr("height"),
         radius = Math.min(width, height) / 2,
@@ -230,7 +230,7 @@ function generateAccessibility() {
     var statistic = 0;
     
     d3.csv("../data?q=accessibility", function(d) {
-        if (d.setting == "reduce_transparency") {
+        if (d.setting == setting.replace(" ", "_")) {
             d.setting = "Enabled";
             statistic = d.count;
         } else if (d.setting == "total") {
@@ -265,4 +265,7 @@ generateContentViews();
 generateMAUs(true);
 generateSessionDuration();
 generateMAUs(false);
-generateAccessibility();
+generateAccessibility("voiceover");
+generateAccessibility("bold text");
+generateAccessibility("reduce motion");
+generateAccessibility("reduce transparency");
